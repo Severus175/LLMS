@@ -20,3 +20,21 @@ export const protectEducator = async (req,res,next) => {
     }
 
 }
+
+// Middleware ( Protect Admin Routes )
+export const protectAdmin = async (req, res, next) => {
+    try {
+        const userId = req.auth.userId
+        
+        const response = await clerkClient.users.getUser(userId)
+
+        if (response.publicMetadata.role !== 'admin') {
+            return res.json({success: false, message: 'Admin access required'})
+        }
+        
+        next()
+
+    } catch (error) {
+        res.json({success: false, message: error.message})
+    }
+}

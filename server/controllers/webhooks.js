@@ -86,24 +86,12 @@ export const stripeWebhooks = async (request, response) => {
 
   // Handle the event
   switch (event.type) {
-    case 'payment_intent.succeeded': {
+    case 'checkout.session.completed': {
       console.log('Payment succeeded, processing enrollment...');
 
-      const paymentIntent = event.data.object;
-      const paymentIntentId = paymentIntent.id;
+      const session = event.data.object;
+      const { purchaseId } = session.metadata;
 
-      // Getting Session Metadata
-      const session = await stripeInstance.checkout.sessions.list({
-        payment_intent: paymentIntentId,
-      });
-
-      if (!session.data || session.data.length === 0) {
-        console.log('No session found for payment intent:', paymentIntentId);
-        break;
-      }
-
-      const { purchaseId } = session.data[0].metadata;
-      
       if (!purchaseId) {
         console.log('No purchaseId found in session metadata');
         break;
@@ -144,23 +132,11 @@ export const stripeWebhooks = async (request, response) => {
 
       break;
     }
-    case 'payment_intent.payment_failed': {
+    case 'checkout.session.expired': {
       console.log('Payment failed, updating purchase status...');
       
-      const paymentIntent = event.data.object;
-      const paymentIntentId = paymentIntent.id;
-
-      // Getting Session Metadata
-      const session = await stripeInstance.checkout.sessions.list({
-        payment_intent: paymentIntentId,
-      });
-
-      if (!session.data || session.data.length === 0) {
-        console.log('No session found for failed payment intent:', paymentIntentId);
-        break;
-      }
-
-      const { purchaseId } = session.data[0].metadata;
+      const session = event.data.object;
+      const { purchaseId } = session.metadata;
       
       if (!purchaseId) {
         console.log('No purchaseId found in failed payment session metadata');

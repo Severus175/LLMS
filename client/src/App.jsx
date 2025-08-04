@@ -15,16 +15,21 @@ import { ToastContainer } from 'react-toastify'
 import Player from './pages/student/Player'
 import MyEnrollments from './pages/student/MyEnrollments'
 import Loading from './components/student/Loading'
+import Admin from './pages/admin/Admin'
+import AdminDashboard from './pages/admin/AdminDashboard'
+import EducatorRequests from './pages/admin/EducatorRequests'
+import AllEducators from './pages/admin/AllEducators'
 
 const App = () => {
 
   const isEducatorRoute = useMatch('/educator/*');
+  const isAdminRoute = useMatch('/admin/*');
 
   return (
     <div className="text-default min-h-screen bg-white">
       <ToastContainer />
       {/* Render Student Navbar only if not on educator routes */}
-      {!isEducatorRoute && <Navbar />}
+      {!isEducatorRoute && !isAdminRoute && <Navbar />}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/course/:id" element={<CourseDetails />} />
@@ -38,6 +43,11 @@ const App = () => {
           <Route path='add-course' element={<AddCourse />} />
           <Route path='my-courses' element={<MyCourses />} />
           <Route path='student-enrolled' element={<StudentsEnrolled />} />
+        </Route>
+        <Route path='/admin' element={<Admin />}>
+          <Route path='/admin' element={<AdminDashboard />} />
+          <Route path='educator-requests' element={<EducatorRequests />} />
+          <Route path='all-educators' element={<AllEducators />} />
         </Route>
       </Routes>
     </div>

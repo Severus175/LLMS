@@ -3,21 +3,32 @@ import Course from '../models/Course.js';
 import { Purchase } from '../models/Purchase.js';
 import User from '../models/User.js';
 import { clerkClient } from '@clerk/express'
+import EducatorRequest from '../models/EducatorRequest.js';
 
-// update role to educator
-export const updateRoleToEducator = async (req, res) => {
+// Request to become educator
+export const requestEducatorRole = async (req, res) => {
 
     try {
 
         const userId = req.auth.userId
 
-        await clerkClient.users.updateUserMetadata(userId, {
-            publicMetadata: {
-                role: 'educator',
-            },
-        })
+        // Check if user already has a pending or approved request
+        const existingRequest = await EducatorRequest.findOne({ 
+            userId, 
+            status: { $in: ['pending', 'approved'] } 
+        });
 
-        res.json({ success: true, message: 'You can publish a course now' })
+        if (existingRequest) {
+            if (existingRequest.status === 'approved') {
+                return res.json({ success: false, message: 'You are already an educator' });
+            }
+            return res.json({ success: false, message: 'Your educator request is already pending approval' });
+        }
+
+        // Create new educator request
+        await EducatorRequest.create({ userId });
+
+        res.json({ success: true, message: 'Your educator request has been submitted for admin approval' })
 
     } catch (error) {
         res.json({ success: false, message: error.message })
