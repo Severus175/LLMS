@@ -19,6 +19,9 @@ import Admin from './pages/admin/Admin'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import EducatorRequests from './pages/admin/EducatorRequests'
 import AllEducators from './pages/admin/AllEducators'
+import AdminLogin from './pages/admin/AdminLogin'
+import { AdminProvider } from './context/AdminContext'
+import ProtectedAdminRoute from './components/admin/ProtectedAdminRoute'
 
 const App = () => {
 
@@ -26,31 +29,40 @@ const App = () => {
   const isAdminRoute = useMatch('/admin/*');
 
   return (
-    <div className="text-default min-h-screen bg-white">
-      <ToastContainer />
-      {/* Render Student Navbar only if not on educator routes */}
-      {!isEducatorRoute && !isAdminRoute && <Navbar />}
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/course/:id" element={<CourseDetails />} />
-        <Route path="/course-list" element={<CoursesList />} />
-        <Route path="/course-list/:input" element={<CoursesList />} />
-        <Route path="/my-enrollments" element={<MyEnrollments />} />
-        <Route path="/player/:courseId" element={<Player />} />
-        <Route path="/loading/:path" element={<Loading />} />
-        <Route path='/educator' element={<Educator />}>
-          <Route path='/educator' element={<Dashboard />} />
-          <Route path='add-course' element={<AddCourse />} />
-          <Route path='my-courses' element={<MyCourses />} />
-          <Route path='student-enrolled' element={<StudentsEnrolled />} />
-        </Route>
-        <Route path='/admin' element={<Admin />}>
-          <Route path='/admin' element={<AdminDashboard />} />
-          <Route path='educator-requests' element={<EducatorRequests />} />
-          <Route path='all-educators' element={<AllEducators />} />
-        </Route>
-      </Routes>
-    </div>
+    <AdminProvider>
+      <div className="text-default min-h-screen bg-white">
+        <ToastContainer />
+        {/* Render Student Navbar only if not on educator routes */}
+        {!isEducatorRoute && !isAdminRoute && <Navbar />}
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/course/:id" element={<CourseDetails />} />
+          <Route path="/course-list" element={<CoursesList />} />
+          <Route path="/course-list/:input" element={<CoursesList />} />
+          <Route path="/my-enrollments" element={<MyEnrollments />} />
+          <Route path="/player/:courseId" element={<Player />} />
+          <Route path="/loading/:path" element={<Loading />} />
+          <Route path='/educator' element={<Educator />}>
+            <Route path='/educator' element={<Dashboard />} />
+            <Route path='add-course' element={<AddCourse />} />
+            <Route path='my-courses' element={<MyCourses />} />
+            <Route path='student-enrolled' element={<StudentsEnrolled />} />
+          </Route>
+          
+          {/* Admin Routes */}
+          <Route path='/admin/login' element={<AdminLogin />} />
+          <Route path='/admin' element={
+            <ProtectedAdminRoute>
+              <Admin />
+            </ProtectedAdminRoute>
+          }>
+            <Route path='/admin/dashboard' element={<AdminDashboard />} />
+            <Route path='educator-requests' element={<EducatorRequests />} />
+            <Route path='all-educators' element={<AllEducators />} />
+          </Route>
+        </Routes>
+      </div>
+    </AdminProvider>
   )
 }
 

@@ -1,23 +1,21 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { assets } from '../../assets/assets'
-import { AppContext } from '../../context/AppContext';
+import { useAdmin } from '../../context/AdminContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import Loading from '../../components/student/Loading';
 
 const AdminDashboard = () => {
 
-  const { backendUrl, isAdmin, getToken } = useContext(AppContext)
+  const { getAuthHeaders, backendUrl } = useAdmin()
 
   const [dashboardData, setDashboardData] = useState(null)
 
   const fetchDashboardData = async () => {
     try {
 
-      const token = await getToken()
-
       const { data } = await axios.get(backendUrl + '/api/admin/dashboard',
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: getAuthHeaders() }
       )
 
       if (data.success) {
@@ -32,12 +30,8 @@ const AdminDashboard = () => {
   }
 
   useEffect(() => {
-
-    if (isAdmin) {
-      fetchDashboardData()
-    }
-
-  }, [isAdmin])
+    fetchDashboardData()
+  }, [])
 
   return dashboardData ? (
     <div className='min-h-screen flex flex-col items-start justify-between gap-8 md:p-8 md:pb-0 p-4 pt-8 pb-0'>

@@ -4,6 +4,7 @@ import { Purchase } from '../models/Purchase.js';
 import User from '../models/User.js';
 import { clerkClient } from '@clerk/express'
 import EducatorRequest from '../models/EducatorRequest.js';
+import { sendEducatorRequestEmail } from '../configs/email.js';
 
 // Request to become educator
 export const requestEducatorRole = async (req, res) => {
@@ -27,6 +28,21 @@ export const requestEducatorRole = async (req, res) => {
 
         // Create new educator request
         await EducatorRequest.create({ userId });
+
+        // Get user details for email
+        const userDetails = await clerkClient.users.getUser(userId);
+        
+        // Send email notification to admin
+        try {
+            await sendEducatorRequestEmail({
+                name: userDetails.firstName + ' ' + userDetails.lastName,
+                email: userDetails.emailAddresses[0].emailAddress,
+                userId: userId
+            });
+        } catch (emailError) {
+            console.error('Failed to send email notification:', emailError);
+            // Don't fail the request if email fails
+        }
 
         res.json({ success: true, message: 'Your educator request has been submitted for admin approval' })
 

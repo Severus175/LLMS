@@ -1,12 +1,12 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { AppContext } from '../../context/AppContext';
+import { useAdmin } from '../../context/AdminContext';
 import { toast } from 'react-toastify';
 import Loading from '../../components/student/Loading';
 
 const EducatorRequests = () => {
 
-  const { backendUrl, getToken, isAdmin } = useContext(AppContext)
+  const { getAuthHeaders, backendUrl } = useAdmin()
 
   const [requests, setRequests] = useState(null)
   const [showRejectModal, setShowRejectModal] = useState(false)
@@ -15,10 +15,8 @@ const EducatorRequests = () => {
 
   const fetchRequests = async () => {
     try {
-      const token = await getToken()
-
       const { data } = await axios.get(backendUrl + '/api/admin/educator-requests',
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: getAuthHeaders() }
       )
 
       if (data.success) {
@@ -34,11 +32,9 @@ const EducatorRequests = () => {
 
   const approveRequest = async (requestId) => {
     try {
-      const token = await getToken()
-
       const { data } = await axios.post(backendUrl + '/api/admin/approve-educator',
         { requestId },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: getAuthHeaders() }
       )
 
       if (data.success) {
@@ -55,11 +51,9 @@ const EducatorRequests = () => {
 
   const rejectRequest = async () => {
     try {
-      const token = await getToken()
-
       const { data } = await axios.post(backendUrl + '/api/admin/reject-educator',
         { requestId: selectedRequest._id, reason: rejectionReason },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: getAuthHeaders() }
       )
 
       if (data.success) {
@@ -83,10 +77,8 @@ const EducatorRequests = () => {
   }
 
   useEffect(() => {
-    if (isAdmin) {
-      fetchRequests()
-    }
-  }, [isAdmin])
+    fetchRequests()
+  }, [])
 
   return requests ? (
     <div className="min-h-screen flex flex-col items-start justify-between md:p-8 md:pb-0 p-4 pt-8 pb-0">

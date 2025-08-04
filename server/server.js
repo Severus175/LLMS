@@ -23,6 +23,7 @@ app.use(clerkMiddleware())
 
 // Routes
 app.get('/', (req, res) => res.send("API Working"))
+app.get('/api/admin/create-default', (req, res) => res.send("Use POST method to create default admin"))
 app.post('/clerk', express.json() , clerkWebhooks)
 app.post('/stripe', express.raw({ type: 'application/json' }), stripeWebhooks)
 app.use('/api/admin', express.json(), adminRouter)

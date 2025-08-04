@@ -1,28 +1,26 @@
 import express from 'express';
 import { 
+    adminLogin,
     getEducatorRequests, 
     approveEducatorRequest, 
     rejectEducatorRequest, 
     getAllEducators,
-    getAdminDashboard 
+    getAdminDashboard,
+    createDefaultAdmin
 } from '../controllers/adminController.js';
-import { protectAdmin } from '../middlewares/authMiddleware.js';
+import { authenticateAdmin } from '../middlewares/adminAuth.js';
 
 const adminRouter = express.Router();
 
-// Get admin dashboard data
-adminRouter.get('/dashboard', protectAdmin, getAdminDashboard);
+// Public routes
+adminRouter.post('/login', adminLogin);
+adminRouter.post('/create-default', createDefaultAdmin); // For initial setup only
 
-// Get all educator requests
-adminRouter.get('/educator-requests', protectAdmin, getEducatorRequests);
-
-// Approve educator request
-adminRouter.post('/approve-educator', protectAdmin, approveEducatorRequest);
-
-// Reject educator request
-adminRouter.post('/reject-educator', protectAdmin, rejectEducatorRequest);
-
-// Get all educators
-adminRouter.get('/educators', protectAdmin, getAllEducators);
+// Protected routes
+adminRouter.get('/dashboard', authenticateAdmin, getAdminDashboard);
+adminRouter.get('/educator-requests', authenticateAdmin, getEducatorRequests);
+adminRouter.post('/approve-educator', authenticateAdmin, approveEducatorRequest);
+adminRouter.post('/reject-educator', authenticateAdmin, rejectEducatorRequest);
+adminRouter.get('/educators', authenticateAdmin, getAllEducators);
 
 export default adminRouter;

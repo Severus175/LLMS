@@ -1,21 +1,19 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { AppContext } from '../../context/AppContext';
+import { useAdmin } from '../../context/AdminContext';
 import { toast } from 'react-toastify';
 import Loading from '../../components/student/Loading';
 
 const AllEducators = () => {
 
-  const { backendUrl, getToken, isAdmin } = useContext(AppContext)
+  const { getAuthHeaders, backendUrl } = useAdmin()
 
   const [educators, setEducators] = useState(null)
 
   const fetchEducators = async () => {
     try {
-      const token = await getToken()
-
       const { data } = await axios.get(backendUrl + '/api/admin/educators',
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: getAuthHeaders() }
       )
 
       if (data.success) {
@@ -30,10 +28,8 @@ const AllEducators = () => {
   }
 
   useEffect(() => {
-    if (isAdmin) {
-      fetchEducators()
-    }
-  }, [isAdmin])
+    fetchEducators()
+  }, [])
 
   return educators ? (
     <div className="min-h-screen flex flex-col items-start justify-between md:p-8 md:pb-0 p-4 pt-8 pb-0">
